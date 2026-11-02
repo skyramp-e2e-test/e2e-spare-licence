@@ -22,26 +22,32 @@ On startup the app creates its tables and seeds a test user.
 
 ## Required configuration
 
-The app **refuses to start** unless `APP_SIGNING_SECRET` is set. It signs the session cookie with this value. The app never prints or logs the value.
+The app **refuses to start** unless `APP_SIGNING_SECRET` is set to a valid value. It signs the session cookie with this value. The app never prints or logs the value.
+
+`APP_SIGNING_SECRET` is **provided by the customer**. Do not generate your own value; use the secret the customer gives you.
+
+The value must be **exactly 40 characters**, using only letters and digits (`A-Z`, `a-z`, `0-9`). No spaces, symbols, or other characters.
 
 If the variable is missing:
 
 - `docker compose up` stops with `APP_SIGNING_SECRET must be set`.
-- When you run the app directly with Node, it exits with code 1 and prints `Startup error: Missing required environment variable APP_SIGNING_SECRET`.
+- The app exits with code 1 and prints `Startup error: Missing required environment variable APP_SIGNING_SECRET`.
+
+If the variable is set but is not exactly 40 letters/digits, the app exits with code 1 and prints `Startup error: APP_SIGNING_SECRET is invalid`.
 
 ## Start the app
 
 Requires Docker with Compose v2.
 
 ```bash
-export APP_SIGNING_SECRET="$(openssl rand -hex 32)"
+export APP_SIGNING_SECRET="<40-character secret provided by the customer>"
 docker compose up --build
 ```
 
 Or put the secret in a `.env` file next to `docker-compose.yml` (see `.env.example`; `.env` is gitignored):
 
 ```bash
-echo "APP_SIGNING_SECRET=$(openssl rand -hex 32)" > .env
+echo "APP_SIGNING_SECRET=<40-character secret provided by the customer>" > .env
 docker compose up --build
 ```
 
@@ -59,7 +65,7 @@ With a PostgreSQL instance reachable at `DATABASE_URL`:
 
 ```bash
 npm install
-APP_SIGNING_SECRET=dev-secret \
+APP_SIGNING_SECRET="<40-character secret provided by the customer>" \
 DATABASE_URL=postgres://app:app@localhost:5432/app \
 npm start
 ```
