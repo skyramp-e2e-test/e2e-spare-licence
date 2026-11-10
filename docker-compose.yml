@@ -24,7 +24,7 @@ services:
       DATABASE_URL: postgres://app:app@db:5432/app
       PORT: "3000"
       # Required. Compose fails fast with this message if it is unset.
-      APP_SIGNING_SECRET: ${APP_SIGNING_SECRET:?APP_SIGNING_SECRET must be set}
+      APP_LICENCE_KEY: ${APP_LICENCE_KEY:?APP_LICENCE_KEY is not set}
     ports:
       - "3000:3000"
 

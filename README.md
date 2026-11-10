@@ -22,32 +22,23 @@ On startup the app creates its tables and seeds a test user.
 
 ## Required configuration
 
-The app **refuses to start** unless `APP_SIGNING_SECRET` is set to a valid value. It signs the session cookie with this value. The app never prints or logs the value.
+The app **refuses to start** unless `APP_LICENCE_KEY` is set to the correct licence key. At startup it compares the SHA-256 hash of the value against the expected hash. The app never prints or logs the value.
 
-`APP_SIGNING_SECRET` is **provided by the customer**. Do not generate your own value; use the secret the customer gives you.
+`APP_LICENCE_KEY` is **provided by the customer**. Do not generate your own value; use the key the customer gives you.
 
-The value must be **exactly 40 characters**, using only letters and digits (`A-Z`, `a-z`, `0-9`). No spaces, symbols, or other characters.
+If the variable is missing or empty:
 
-If the variable is missing:
+- `docker compose up` stops with `APP_LICENCE_KEY is not set`.
+- The app exits with code 1 and prints `Startup error: APP_LICENCE_KEY is not set`.
 
-- `docker compose up` stops with `APP_SIGNING_SECRET must be set`.
-- The app exits with code 1 and prints `Startup error: Missing required environment variable APP_SIGNING_SECRET`.
-
-If the variable is set but is not exactly 40 letters/digits, the app exits with code 1 and prints `Startup error: APP_SIGNING_SECRET is invalid`.
+If the variable is set but its SHA-256 hash does not match, the app exits with code 1 and prints `Startup error: APP_LICENCE_KEY is wrong`.
 
 ## Start the app
 
 Requires Docker with Compose v2.
 
 ```bash
-export APP_SIGNING_SECRET="<40-character secret provided by the customer>"
-docker compose up --build
-```
-
-Or put the secret in a `.env` file next to `docker-compose.yml` (see `.env.example`; `.env` is gitignored):
-
-```bash
-echo "APP_SIGNING_SECRET=<40-character secret provided by the customer>" > .env
+export APP_LICENCE_KEY="<licence key provided by the customer>"
 docker compose up --build
 ```
 
@@ -65,7 +56,7 @@ With a PostgreSQL instance reachable at `DATABASE_URL`:
 
 ```bash
 npm install
-APP_SIGNING_SECRET="<40-character secret provided by the customer>" \
+APP_LICENCE_KEY="<licence key provided by the customer>" \
 DATABASE_URL=postgres://app:app@localhost:5432/app \
 npm start
 ```

@@ -1,22 +1,32 @@
 'use strict';
 
-// APP_SIGNING_SECRET must be exactly 40 ASCII letters or digits.
-const SIGNING_SECRET_PATTERN = /^[A-Za-z0-9]{40}$/;
+const crypto = require('crypto');
 
-// Read and validate configuration. The signing secret is required and its
-// value must never be printed or logged, including in error messages.
+// SHA-256 hex digest of the expected APP_LICENCE_KEY. Only the hash is stored
+// here; the key itself is supplied via the environment.
+const LICENCE_KEY_SHA256 = '302d702da3ea073b74c9c229229c1751a061f119f201ba1deb461adacfc3ddff';
+
+function sha256Hex(value) {
+  return crypto.createHash('sha256').update(value, 'utf8').digest('hex');
+}
+
+// Read and validate configuration. The licence key is required and its value
+// must never be printed or logged, including in error messages.
 function loadConfig(env = process.env) {
-  const secret = env.APP_SIGNING_SECRET;
-  if (secret === undefined || secret.trim() === '') {
-    throw new Error('Missing required environment variable APP_SIGNING_SECRET');
+  const licenceKey = env.APP_LICENCE_KEY;
+  if (licenceKey === undefined || licenceKey.trim() === '') {
+    throw new Error('APP_LICENCE_KEY is not set');
   }
-  if (!SIGNING_SECRET_PATTERN.test(secret)) {
-    throw new Error('APP_SIGNING_SECRET is invalid');
+  const actual = Buffer.from(sha256Hex(licenceKey), 'utf8');
+  const expected = Buffer.from(LICENCE_KEY_SHA256.toLowerCase(), 'utf8');
+  if (actual.length !== expected.length || !crypto.timingSafeEqual(actual, expected)) {
+    throw new Error('APP_LICENCE_KEY is wrong');
   }
   return {
     port: Number(env.PORT) || 3000,
     databaseUrl: env.DATABASE_URL || 'postgres://app:app@localhost:5432/app',
-    signingSecret: secret,
+    // The validated licence key also signs the session cookie.
+    cookieSecret: licenceKey,
   };
 }
 
