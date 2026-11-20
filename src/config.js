@@ -4,7 +4,7 @@ const crypto = require('crypto');
 
 // SHA-256 hex digest of the expected APP_LICENCE_KEY. Only the hash is stored
 // here; the key itself is supplied via the environment.
-const LICENCE_KEY_SHA256 = '302d702da3ea073b74c9c229229c1751a061f119f201ba1deb461adacfc3ddff';
+const LICENCE_KEY_SHA256 = 'c54870d887d913badee98ca159c9571d4e793c3b2e592f7c8afda440bebee703';
 
 function sha256Hex(value) {
   return crypto.createHash('sha256').update(value, 'utf8').digest('hex');
